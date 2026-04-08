@@ -21,7 +21,7 @@ class GradientNormCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         try:
             with tf.GradientTape() as tape:
-                y_pred = self.model(self.x_sample, training=True)
+                y_pred = self.model(self.x_sample, training=False)
                 loss = self.model.compiled_loss(self.y_sample, y_pred)
             grads = tape.gradient(loss, self.model.trainable_variables)
             valid_grads = [g for g in grads if g is not None]

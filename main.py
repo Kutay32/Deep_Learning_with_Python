@@ -59,7 +59,7 @@ def run_preset(preset_key, x_train, y_train, x_test, y_test):
     print(f"  OvFit Gap: {result['overfitting_gap']:+.4f}")
     print(f"  Params   : {result['param_count']:,}")
     if result["diverged"]:
-        print("  ⚠️  DIVERGED — NaN/Inf detected!")
+        print("  DIVERGED — NaN/Inf detected!")
 
 
 def run_compare(x_train, y_train, x_test, y_test):
@@ -69,7 +69,7 @@ def run_compare(x_train, y_train, x_test, y_test):
         print(f"  Training: {preset.name}…")
         result = train_with_preset(preset, x_train, y_train, x_test, y_test)
         compare_results[key] = result
-        status = "DIVERGED ⚠️" if result["diverged"] else f"acc={result['test_acc']:.4f}"
+        status = "DIVERGED" if result["diverged"] else f"acc={result['test_acc']:.4f}"
         print(f"    → {status}")
 
     print("\n  Comparison table:")

@@ -29,7 +29,7 @@ from src.config import CLASS_NAMES
 # ──────────────────────────── Page Config ─────────────────────────────
 st.set_page_config(
     page_title="DL Optimization Sandbox",
-    page_icon="🧪",
+    page_icon="DL",
     layout="wide",
 )
 
@@ -56,17 +56,17 @@ def get_data(subset_size: int, seed: int):
 
 # ──────────────────────────────── Sidebar ─────────────────────────────
 with st.sidebar:
-    st.header("⚙️ Configuration")
+    st.header("Configuration")
 
     # ── Dataset ──
-    st.subheader("📂 Dataset")
+    st.subheader("Dataset")
     subset_size = st.slider("Training subset size", 100, 5000, 1000, 100)
     seed = st.number_input("Random seed", value=42, step=1)
 
     st.divider()
 
     # ── Preset Selector ──
-    st.subheader("📦 Preset Selection")
+    st.subheader("Preset Selection")
     preset_keys = list(PRESETS.keys())
     preset_display = {k: f"[{v.category.upper()}] {v.name}" for k, v in PRESETS.items()}
 
@@ -85,7 +85,7 @@ with st.sidebar:
     st.divider()
 
     # ── Manual Override ──
-    with st.expander("🔧 Manual Override", expanded=False):
+    with st.expander("Manual Override", expanded=False):
         ov_optimizer = st.selectbox(
             "Optimizer", ["sgd", "adam", "rmsprop", "adagrad"],
             index=["sgd", "adam", "rmsprop", "adagrad"].index(base_preset.optimizer),
@@ -172,7 +172,7 @@ with st.sidebar:
     st.divider()
 
     # ── Comparison ──
-    st.subheader("📊 Comparison")
+    st.subheader("Comparison")
     compare_keys = st.multiselect(
         "Select presets (multi)",
         options=preset_keys,
@@ -184,15 +184,15 @@ with st.sidebar:
 
     col_run, col_cmp = st.columns(2)
     with col_run:
-        run_btn = st.button("🚀 Start Training", use_container_width=True, type="primary")
+        run_btn = st.button("Start Training", use_container_width=True, type="primary")
     with col_cmp:
-        cmp_btn = st.button("🔄 Compare", use_container_width=True)
+        cmp_btn = st.button("Compare", use_container_width=True)
 
 
 # ──────────────────────────── Main Area ───────────────────────────────
-st.title("🧪 Deep Learning Optimization Sandbox")
+st.title("Deep Learning Optimization Sandbox")
 st.markdown(
-    "**Week 5** — Comparative analysis of optimization strategies on Fashion-MNIST. "
+    "Comparative analysis of optimization strategies on Fashion-MNIST. "
     "Optimizer · Init · Normalization · Gradient Clipping · LR Scheduling"
 )
 
@@ -200,7 +200,7 @@ x_train, y_train, x_test, y_test = get_data(subset_size, int(seed))
 st.session_state.x_test = x_test
 st.session_state.y_test = y_test
 
-with st.expander("📷 Sample Images", expanded=False):
+with st.expander("Sample Images", expanded=False):
     cols = st.columns(10)
     for i, col in enumerate(cols):
         with col:
@@ -218,9 +218,9 @@ if run_btn:
         result = train_with_preset(active_preset, x_train, y_train, x_test, y_test)
     st.session_state.single_result = result
     if result["diverged"]:
-        st.warning(f"⚠️ **{active_preset.name}** — NaN/Inf detected during training, diverged!")
+        st.warning(f"**{active_preset.name}** — NaN/Inf detected during training, diverged!")
     else:
-        st.success(f"✅ **{active_preset.name}** complete — Test Acc: {result['test_acc']:.2%}")
+        st.success(f"**{active_preset.name}** complete — Test Acc: {result['test_acc']:.2%}")
 
 # ──────────────────────────── Run Comparison ──────────────────────────
 if cmp_btn:
@@ -240,11 +240,11 @@ if cmp_btn:
             res = train_with_preset(preset_i, x_train, y_train, x_test, y_test)
             st.session_state.compare_results[key] = res
         progress_bar.progress(100, text="Done!")
-        st.success(f"✅ {len(compare_keys)} preset comparison complete.")
+        st.success(f"{len(compare_keys)} preset comparison complete.")
 
 # ─────────────────────────── Display Results ──────────────────────────
 tab_single, tab_compare, tab_model = st.tabs(
-    ["📈 Training Curves", "📊 Comparison", "🔍 Model Details"]
+    ["Training Curves", "Comparison", "Model Details"]
 )
 
 # ── Tab 1: Single Preset Results ──────────────────────────────────────
@@ -257,7 +257,7 @@ with tab_single:
             ### How to Use
             1. Select a **preset** from the sidebar
             2. Optionally open **Manual Override** to tweak individual parameters
-            3. Click **🚀 Start Training**
+            3. Click **Start Training**
             4. Inspect results in the metrics and charts below
             """
         )
@@ -278,14 +278,14 @@ with tab_single:
         ci3.caption(f"**Norm:** {r['preset'].normalization} | **Clip:** {r['preset'].gradient_clip_norm}")
 
         if r["diverged"]:
-            st.error("⚠️ Training ended with NaN/Inf. Try a lower LR or enable gradient clipping.")
+            st.error("Training ended with NaN/Inf. Try a lower LR or enable gradient clipping.")
 
-        st.subheader("📉 Loss & Accuracy Curves")
+        st.subheader("Loss & Accuracy Curves")
         fig_curves = plot_preset_training_curves(r)
         st.pyplot(fig_curves)
         plt.close(fig_curves)
 
-        st.subheader("📡 LR Schedule & Gradient Norm")
+        st.subheader("LR Schedule & Gradient Norm")
         fig_lr_grad = plot_lr_and_grad_norm(r)
         st.pyplot(fig_lr_grad)
         plt.close(fig_lr_grad)
@@ -314,10 +314,10 @@ with tab_compare:
     cmp = st.session_state.compare_results
 
     if not cmp:
-        st.info("Select presets from the sidebar and click **🔄 Compare** to run a comparison.")
+        st.info("Select presets from the sidebar and click **Compare** to run a comparison.")
     else:
         # Overlay curves
-        st.subheader("📈 Overlay — Validation Loss & Accuracy")
+        st.subheader("Overlay — Validation Loss & Accuracy")
         fig_ov = plot_overlay_comparison(cmp)
         st.pyplot(fig_ov)
         plt.close(fig_ov)
@@ -325,25 +325,25 @@ with tab_compare:
         # Bar charts row
         col_bar1, col_bar2 = st.columns(2)
         with col_bar1:
-            st.subheader("🏆 Test Accuracy")
+            st.subheader("Test Accuracy")
             fig_acc = plot_test_accuracy_bar_presets(cmp)
             st.pyplot(fig_acc)
             plt.close(fig_acc)
         with col_bar2:
-            st.subheader("⚡ Convergence Speed")
+            st.subheader("Convergence Speed")
             fig_conv = plot_convergence_speed_bar(cmp)
             st.pyplot(fig_conv)
             plt.close(fig_conv)
 
         col_bar3, col_bar4 = st.columns(2)
         with col_bar3:
-            st.subheader("📏 Overfitting Gap")
+            st.subheader("Overfitting Gap")
             fig_gap = plot_overfitting_gap_bar(cmp)
             st.pyplot(fig_gap)
             plt.close(fig_gap)
 
         # Metrics table
-        st.subheader("📋 Metrics Table")
+        st.subheader("Metrics Table")
         df = build_comparison_table(cmp)
 
         def _highlight(s):
@@ -372,31 +372,31 @@ with tab_compare:
         # Divergence warnings
         for key, res in cmp.items():
             if res.get("diverged"):
-                st.warning(f"⚠️ **{res['preset'].name}** diverged — results may be invalid.")
+                st.warning(f"**{res['preset'].name}** diverged — results may be invalid.")
 
 # ── Tab 3: Model Details ──────────────────────────────────────────────
 with tab_model:
     r = st.session_state.single_result
 
     if r is None:
-        st.info("Train a model first by clicking **🚀 Start Training**.")
+        st.info("Train a model first by clicking **Start Training**.")
     else:
         preset = r["preset"]
-        st.subheader(f"🔢 Confusion Matrix — {preset.name}")
+        st.subheader(f"Confusion Matrix — {preset.name}")
         cm, report = compute_confusion_matrix_preset(r, x_test, y_test)
         fig_cm = plot_confusion_matrix_preset(cm, preset.name)
         st.pyplot(fig_cm)
         plt.close(fig_cm)
 
-        with st.expander("📋 Classification Report"):
+        with st.expander("Classification Report"):
             st.code(report)
 
-        st.subheader("🏗️ Model Summary")
+        st.subheader("Model Summary")
         summary_lines = []
         r["model"].summary(print_fn=lambda x: summary_lines.append(x))
         st.code("\n".join(summary_lines))
 
-        st.subheader("📐 Active Configuration")
+        st.subheader("Active Configuration")
         config_data = {
             "Parameter": [
                 "Optimizer", "Learning Rate", "Momentum", "Nesterov",
@@ -418,36 +418,36 @@ with tab_model:
         }
         st.dataframe(pd.DataFrame(config_data).set_index("Parameter"), use_container_width=True)
 
-        st.subheader("📚 Educational Notes")
+        st.subheader("Educational Notes")
         HELP = {
-            "sgd": "🔵 **SGD:** The simplest optimizer. Takes a step of size ε opposite the gradient. Very sensitive to learning rate.",
-            "adam": "🟢 **Adam:** RMSProp + Momentum + bias correction. Industry standard. Default: lr=0.001, β₁=0.9, β₂=0.999.",
-            "rmsprop": "🟡 **RMSProp:** Fixes AdaGrad's flaw using EWMA to forget old gradients. Adapts to non-stationary loss surfaces.",
-            "adagrad": "🟠 **AdaGrad:** Per-parameter LR. Fatal flaw: accumulator only grows → LR→0.",
+            "sgd": "**SGD:** The simplest optimizer. Takes a step of size ε opposite the gradient. Very sensitive to learning rate.",
+            "adam": "**Adam:** RMSProp + Momentum + bias correction. Industry standard. Default: lr=0.001, β₁=0.9, β₂=0.999.",
+            "rmsprop": "**RMSProp:** Fixes AdaGrad's flaw using EWMA to forget old gradients. Adapts to non-stationary loss surfaces.",
+            "adagrad": "**AdaGrad:** Per-parameter LR. Fatal flaw: accumulator only grows → LR→0.",
         }
         HELP_INIT = {
-            "random_normal": "🔴 **Random Normal:** Breaks symmetry but no variance matching. Too small→vanishing, too large→exploding.",
-            "glorot_uniform": "🔵 **Xavier/Glorot:** Var(output)=Var(input). For Sigmoid/Tanh. W ~ U(±√(6/(fan_in+fan_out))).",
-            "he_normal": "🟢 **He/Kaiming:** Xavier×2. ReLU zeroes out the negative half → He compensates by multiplying by 2.",
-            "he_uniform": "🟢 **He Uniform:** Uniform distribution variant of He Normal.",
+            "random_normal": "**Random Normal:** Breaks symmetry but no variance matching. Too small→vanishing, too large→exploding.",
+            "glorot_uniform": "**Xavier/Glorot:** Var(output)=Var(input). For Sigmoid/Tanh. W ~ U(±√(6/(fan_in+fan_out))).",
+            "he_normal": "**He/Kaiming:** Xavier×2. ReLU zeroes out the negative half → He compensates by multiplying by 2.",
+            "he_uniform": "**He Uniform:** Uniform distribution variant of He Normal.",
         }
         HELP_NORM = {
-            "none": "⚪ **No Normalization:** Baseline. Internal covariate shift persists.",
-            "batch": "🔵 **BatchNorm:** Normalizes over the mini-batch → γ scale, β shift. Requires batch_size≥16.",
-            "layer": "🟡 **LayerNorm:** Independent of batch size. Gold standard for Transformers/NLP.",
+            "none": "**No Normalization:** Baseline. Internal covariate shift persists.",
+            "batch": "**BatchNorm:** Normalizes over the mini-batch → γ scale, β shift. Requires batch_size≥16.",
+            "layer": "**LayerNorm:** Independent of batch size. Gold standard for Transformers/NLP.",
         }
         st.markdown(HELP.get(preset.optimizer, ""))
         st.markdown(HELP_INIT.get(preset.initializer, ""))
         st.markdown(HELP_NORM.get(preset.normalization, ""))
         if preset.gradient_clip_norm:
             st.markdown(
-                f"✂️ **Gradient Clipping (norm={preset.gradient_clip_norm}):** "
+                f"**Gradient Clipping (norm={preset.gradient_clip_norm}):** "
                 "Goodfellow Sec 8.2.4 — protection against cliff structures: "
                 "||g||>threshold → g ← threshold×g/||g||"
             )
         if preset.lr_schedule != "constant":
             sched_help = {
-                "step_decay": f"📉 **Step Decay:** εₖ = ε₀ × {preset.lr_decay_factor}^(floor(k/{preset.lr_decay_epochs}))",
-                "cosine": "🌀 **Cosine Annealing:** εₖ = ε₀ × 0.5 × (1 + cos(πk/T)) — smooth decay towards end of training.",
+                "step_decay": f"**Step Decay:** εₖ = ε₀ × {preset.lr_decay_factor}^(floor(k/{preset.lr_decay_epochs}))",
+                "cosine": "**Cosine Annealing:** εₖ = ε₀ × 0.5 × (1 + cos(πk/T)) — smooth decay towards end of training.",
             }
             st.markdown(sched_help.get(preset.lr_schedule, ""))

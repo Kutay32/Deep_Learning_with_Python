@@ -80,8 +80,8 @@ Open `http://localhost:8501` in your browser.
 **How to use the dashboard:**
 1. Select an **Optimization preset** from the sidebar.
 2. Optionally expand **Manual Override** to tweak individual parameters.
-3. Click **🚀 Start Training** to train the active preset.
-4. Click **🔄 Compare** to train multiple presets side-by-side.
+3. Click **Start Training** to train the active preset.
+4. Click **Compare** to train multiple presets side-by-side.
 5. Inspect results across three tabs: **Training Curves**, **Comparison**, **Model Details**.
 
 ### CLI — Single Preset
