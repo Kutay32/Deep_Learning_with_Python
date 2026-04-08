@@ -1,4 +1,4 @@
-# Deep Learning Optimization Sandbox — Week 5
+# Deep Learning Optimization Sandbox 
 
 A Streamlit-based interactive dashboard for the comparative analysis of deep learning optimization strategies on the Fashion-MNIST dataset.
 
