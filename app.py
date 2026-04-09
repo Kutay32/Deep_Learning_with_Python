@@ -257,15 +257,13 @@ with tab_single:
     r = st.session_state.single_result
 
     if r is None:
-        st.markdown(
-            """
+        st.markdown("""
             ### How to Use
             1. Select a **preset** from the sidebar
             2. Optionally open **Manual Override** to tweak individual parameters
             3. Click **Start Training**
             4. Inspect results in the metrics and charts below
-            """
-        )
+            """)
     else:
         # Metric cards
         h = r["history"].history
