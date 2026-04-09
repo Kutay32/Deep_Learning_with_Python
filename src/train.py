@@ -5,20 +5,26 @@ Model training functions.
 """
 
 import time
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
+
+from src.callbacks import GradientNormCallback, LRHistoryCallback, NaNDetectorCallback
 from src.config import (
-    EPOCHS, BATCH_SIZE, LEARNING_RATE, VALIDATION_SPLIT,
-    EARLY_STOPPING_PATIENCE, EXPERIMENT_NAMES,
+    BATCH_SIZE,
+    EARLY_STOPPING_PATIENCE,
+    EPOCHS,
+    EXPERIMENT_NAMES,
+    LEARNING_RATE,
+    VALIDATION_SPLIT,
 )
 from src.model import MODEL_BUILDERS, build_model
 from src.optimizers import create_optimizer
 from src.schedulers import create_lr_schedule_callback
-from src.callbacks import GradientNormCallback, LRHistoryCallback, NaNDetectorCallback
-
 
 # ─────────────────────── Week 5: Preset-Based Training ────────────────────────
+
 
 def train_with_preset(preset, x_train, y_train, x_test, y_test) -> dict:
     """
@@ -45,12 +51,14 @@ def train_with_preset(preset, x_train, y_train, x_test, y_test) -> dict:
         callbacks.append(lr_cb)
 
     if preset.early_stopping:
-        callbacks.append(EarlyStopping(
-            monitor="val_loss",
-            patience=preset.early_stopping_patience,
-            restore_best_weights=True,
-            verbose=0,
-        ))
+        callbacks.append(
+            EarlyStopping(
+                monitor="val_loss",
+                patience=preset.early_stopping_patience,
+                restore_best_weights=True,
+                verbose=0,
+            )
+        )
 
     x_sample = x_train[:256]
     y_sample = y_train[:256]
@@ -61,7 +69,8 @@ def train_with_preset(preset, x_train, y_train, x_test, y_test) -> dict:
 
     t0 = time.time()
     history = model.fit(
-        x_train, y_train,
+        x_train,
+        y_train,
         epochs=preset.epochs,
         batch_size=preset.batch_size,
         validation_split=VALIDATION_SPLIT,
@@ -97,6 +106,7 @@ def train_with_preset(preset, x_train, y_train, x_test, y_test) -> dict:
 
 # ─────────────────────── Legacy Training (Week 4 backward compatibility) ──────────────────
 
+
 def compile_model(model):
     """Compiles the model: Adam optimizer, crossentropy loss, accuracy metric."""
     model.compile(
@@ -120,9 +130,9 @@ def train_experiment(experiment_name, x_train, y_train):
         model: Trained model
         history: Training history (loss, accuracy values)
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  Experiment: {EXPERIMENT_NAMES[experiment_name]}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     build_fn = MODEL_BUILDERS[experiment_name]
     model = build_fn()
@@ -140,7 +150,8 @@ def train_experiment(experiment_name, x_train, y_train):
         )
 
     history = model.fit(
-        x_train, y_train,
+        x_train,
+        y_train,
         epochs=EPOCHS,
         batch_size=BATCH_SIZE,
         validation_split=VALIDATION_SPLIT,

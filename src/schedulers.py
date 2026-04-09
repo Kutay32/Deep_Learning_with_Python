@@ -5,7 +5,9 @@ Supports Constant, Step Decay and Cosine Annealing schedules.
 
 import math
 from typing import Optional
+
 import tensorflow as tf
+
 from src.presets import TrainingPreset
 
 

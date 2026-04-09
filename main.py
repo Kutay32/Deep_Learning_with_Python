@@ -7,24 +7,24 @@ Usage:
   python main.py --compare              # Compare all presets
 """
 
+import argparse
 import os
 import sys
-import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.data import prepare_data
+from src.evaluate import build_comparison_table, compute_confusion_matrix, evaluate_all, get_best_experiment
+from src.presets import PRESETS
 from src.train import run_all_experiments, train_with_preset
-from src.evaluate import evaluate_all, get_best_experiment, compute_confusion_matrix, build_comparison_table
 from src.visualize import (
     plot_all_training_curves,
     plot_comparison_loss,
-    plot_test_accuracy_bar,
     plot_confusion_matrix,
     plot_overlay_comparison,
+    plot_test_accuracy_bar,
     plot_test_accuracy_bar_presets,
 )
-from src.presets import PRESETS
 
 
 def run_legacy(x_train, y_train, x_test, y_test):
@@ -83,17 +83,17 @@ def run_compare(x_train, y_train, x_test, y_test):
     fig_bar.savefig("results/week5_test_accuracy_bar.png", dpi=150, bbox_inches="tight")
 
     import matplotlib.pyplot as plt
+
     plt.close("all")
     print("\n  Plots saved to 'results/' directory.")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Deep Learning with Python — CLI")
-    parser.add_argument("--preset", type=str, default=None,
-                        choices=list(PRESETS.keys()),
-                        help="Preset to run (e.g. adam_default)")
-    parser.add_argument("--compare", action="store_true",
-                        help="Compare all presets")
+    parser.add_argument(
+        "--preset", type=str, default=None, choices=list(PRESETS.keys()), help="Preset to run (e.g. adam_default)"
+    )
+    parser.add_argument("--compare", action="store_true", help="Compare all presets")
     args = parser.parse_args()
 
     if args.preset:

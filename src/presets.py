@@ -4,7 +4,7 @@ Each preset represents a specific optimization strategy.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Literal
+from typing import Literal, Optional
 
 
 @dataclass

@@ -4,14 +4,13 @@ Fashion-MNIST dataset loading, subset selection and preprocessing.
 
 import numpy as np
 import tensorflow as tf
-from src.config import SUBSET_SIZE, RANDOM_SEED, NUM_CLASSES
+
+from src.config import NUM_CLASSES, RANDOM_SEED, SUBSET_SIZE
 
 
 def load_fashion_mnist():
     """Loads and normalizes the Fashion-MNIST dataset."""
-    (x_train_full, y_train_full), (x_test, y_test) = (
-        tf.keras.datasets.fashion_mnist.load_data()
-    )
+    (x_train_full, y_train_full), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
 
     # [0, 255] -> [0, 1] normalize
     x_train_full = x_train_full.astype("float32") / 255.0

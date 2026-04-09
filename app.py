@@ -5,26 +5,26 @@ gradient clipping and LR scheduling on Fashion-MNIST.
 """
 
 import copy
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
-import tensorflow as tf
 
-from src.presets import PRESETS, TrainingPreset, PRESET_COLORS
-from src.data import load_fashion_mnist, create_subset
-from src.train import train_with_preset
-from src.evaluate import build_comparison_table, compute_confusion_matrix_preset
-from src.visualize import (
-    plot_preset_training_curves,
-    plot_lr_and_grad_norm,
-    plot_overlay_comparison,
-    plot_test_accuracy_bar_presets,
-    plot_overfitting_gap_bar,
-    plot_convergence_speed_bar,
-    plot_confusion_matrix_preset,
-)
 from src.config import CLASS_NAMES
+from src.data import load_fashion_mnist
+from src.evaluate import build_comparison_table, compute_confusion_matrix_preset
+from src.presets import PRESETS, TrainingPreset
+from src.train import train_with_preset
+from src.visualize import (
+    plot_confusion_matrix_preset,
+    plot_convergence_speed_bar,
+    plot_lr_and_grad_norm,
+    plot_overfitting_gap_bar,
+    plot_overlay_comparison,
+    plot_preset_training_curves,
+    plot_test_accuracy_bar_presets,
+)
 
 # ──────────────────────────── Page Config ─────────────────────────────
 st.set_page_config(
@@ -44,6 +44,7 @@ if "x_test" not in st.session_state:
     st.session_state.x_test = None
 if "y_test" not in st.session_state:
     st.session_state.y_test = None
+
 
 # ──────────────────────────── Data Loading ────────────────────────────
 @st.cache_data
@@ -87,56 +88,62 @@ with st.sidebar:
     # ── Manual Override ──
     with st.expander("Manual Override", expanded=False):
         ov_optimizer = st.selectbox(
-            "Optimizer", ["sgd", "adam", "rmsprop", "adagrad"],
+            "Optimizer",
+            ["sgd", "adam", "rmsprop", "adagrad"],
             index=["sgd", "adam", "rmsprop", "adagrad"].index(base_preset.optimizer),
         )
         ov_lr = st.select_slider(
             "Learning rate",
             options=[5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2],
-            value=min([5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2],
-                      key=lambda x: abs(x - base_preset.learning_rate)),
+            value=min([5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2], key=lambda x: abs(x - base_preset.learning_rate)),
         )
-        ov_momentum = st.slider("Momentum (SGD)", 0.0, 0.99,
-                                float(base_preset.momentum), 0.01)
+        ov_momentum = st.slider("Momentum (SGD)", 0.0, 0.99, float(base_preset.momentum), 0.01)
         ov_nesterov = st.checkbox("Nesterov", value=base_preset.nesterov)
         ov_init = st.selectbox(
             "Initialization",
             ["random_normal", "glorot_uniform", "he_normal", "he_uniform"],
-            index=["random_normal", "glorot_uniform", "he_normal", "he_uniform"]
-                  .index(base_preset.initializer),
+            index=["random_normal", "glorot_uniform", "he_normal", "he_uniform"].index(base_preset.initializer),
         )
         ov_norm = st.selectbox(
-            "Normalization", ["none", "batch", "layer"],
+            "Normalization",
+            ["none", "batch", "layer"],
             index=["none", "batch", "layer"].index(base_preset.normalization),
         )
         ov_clip = st.number_input(
-            "Gradient clip norm (0 = off)", min_value=0.0, max_value=20.0,
-            value=float(base_preset.gradient_clip_norm or 0.0), step=0.5,
+            "Gradient clip norm (0 = off)",
+            min_value=0.0,
+            max_value=20.0,
+            value=float(base_preset.gradient_clip_norm or 0.0),
+            step=0.5,
         )
         ov_schedule = st.selectbox(
-            "LR Schedule", ["constant", "step_decay", "cosine"],
+            "LR Schedule",
+            ["constant", "step_decay", "cosine"],
             index=["constant", "step_decay", "cosine"].index(base_preset.lr_schedule),
         )
         ov_reg = st.selectbox(
-            "Regularization", ["none", "l2", "dropout"],
+            "Regularization",
+            ["none", "l2", "dropout"],
             index=["none", "l2", "dropout"].index(base_preset.regularization),
         )
-        ov_l2 = st.slider("L2 lambda", 0.0001, 0.1, float(base_preset.l2_lambda), 0.001,
-                           format="%.4f")
+        ov_l2 = st.slider("L2 lambda", 0.0001, 0.1, float(base_preset.l2_lambda), 0.001, format="%.4f")
         ov_dropout = st.slider("Dropout rate", 0.1, 0.8, float(base_preset.dropout_rate), 0.05)
         st.markdown("**Architecture**")
-        ov_n_layers = st.selectbox("Hidden layer count", [1, 2, 3],
-                                   index=min(len(base_preset.hidden_units), 3) - 1)
+        ov_n_layers = st.selectbox("Hidden layer count", [1, 2, 3], index=min(len(base_preset.hidden_units), 3) - 1)
         ov_units = []
         defaults = (base_preset.hidden_units + [64, 32])[:3]
         for i in range(ov_n_layers):
-            u = st.slider(f"Layer {i+1} units", 32, 512, int(defaults[i]), 32)
+            u = st.slider(f"Layer {i + 1} units", 32, 512, int(defaults[i]), 32)
             ov_units.append(u)
         st.markdown("**Training**")
         ov_epochs = st.slider("Epoch", 10, 200, int(base_preset.epochs), 10)
-        ov_batch = st.selectbox("Batch size", [16, 32, 64, 128],
-                                index=[16, 32, 64, 128].index(int(base_preset.batch_size))
-                                if int(base_preset.batch_size) in [16, 32, 64, 128] else 1)
+        ov_batch = st.selectbox(
+            "Batch size",
+            [16, 32, 64, 128],
+            index=(
+                [16, 32, 64, 128].index(int(base_preset.batch_size)) if int(base_preset.batch_size) in [16, 32, 64, 128] else 1
+            ),
+        )
         ov_es = st.checkbox("Early Stopping", value=base_preset.early_stopping)
 
         override_active = True
@@ -235,7 +242,7 @@ if cmp_btn:
             preset_i.batch_size = active_preset.batch_size
             progress_bar.progress(
                 int(i / len(compare_keys) * 100),
-                text=f"Training: {preset_i.name} ({i+1}/{len(compare_keys)})…",
+                text=f"Training: {preset_i.name} ({i + 1}/{len(compare_keys)})…",
             )
             res = train_with_preset(preset_i, x_train, y_train, x_test, y_test)
             st.session_state.compare_results[key] = res
@@ -243,9 +250,7 @@ if cmp_btn:
         st.success(f"{len(compare_keys)} preset comparison complete.")
 
 # ─────────────────────────── Display Results ──────────────────────────
-tab_single, tab_compare, tab_model = st.tabs(
-    ["Training Curves", "Comparison", "Model Details"]
-)
+tab_single, tab_compare, tab_model = st.tabs(["Training Curves", "Comparison", "Model Details"])
 
 # ── Tab 1: Single Preset Results ──────────────────────────────────────
 with tab_single:
@@ -292,15 +297,9 @@ with tab_single:
 
         col_stat1, col_stat2 = st.columns(2)
         with col_stat1:
-            st.caption(
-                f"Train Acc (last epoch): **{h['accuracy'][-1]:.4f}** | "
-                f"Val Acc: **{h['val_accuracy'][-1]:.4f}**"
-            )
+            st.caption(f"Train Acc (last epoch): **{h['accuracy'][-1]:.4f}** | " f"Val Acc: **{h['val_accuracy'][-1]:.4f}**")
         with col_stat2:
-            st.caption(
-                f"Train Loss (last epoch): **{h['loss'][-1]:.4f}** | "
-                f"Val Loss: **{h['val_loss'][-1]:.4f}**"
-            )
+            st.caption(f"Train Loss (last epoch): **{h['loss'][-1]:.4f}** | " f"Val Loss: **{h['val_loss'][-1]:.4f}**")
 
         if r["gradient_norms"]:
             st.caption(
@@ -361,8 +360,7 @@ with tab_compare:
                     styles.append("")
             return styles
 
-        highlight_cols = ["Test Accuracy", "Best Val Loss", "Convergence Epoch",
-                          "Training Time (s)", "Overfitting Gap"]
+        highlight_cols = ["Test Accuracy", "Best Val Loss", "Convergence Epoch", "Training Time (s)", "Overfitting Gap"]
         styled = df.style
         for col in highlight_cols:
             if col in df.columns:
@@ -399,21 +397,40 @@ with tab_model:
         st.subheader("Active Configuration")
         config_data = {
             "Parameter": [
-                "Optimizer", "Learning Rate", "Momentum", "Nesterov",
-                "Initializer", "Normalization", "Gradient Clip",
-                "LR Schedule", "Regularization", "Dropout Rate", "L2 Lambda",
-                "Epochs", "Batch Size", "Early Stopping", "Hidden Units",
+                "Optimizer",
+                "Learning Rate",
+                "Momentum",
+                "Nesterov",
+                "Initializer",
+                "Normalization",
+                "Gradient Clip",
+                "LR Schedule",
+                "Regularization",
+                "Dropout Rate",
+                "L2 Lambda",
+                "Epochs",
+                "Batch Size",
+                "Early Stopping",
+                "Hidden Units",
                 "Param Count",
             ],
             "Value": [
-                preset.optimizer.upper(), preset.learning_rate, preset.momentum,
-                preset.nesterov, preset.initializer, preset.normalization,
+                preset.optimizer.upper(),
+                preset.learning_rate,
+                preset.momentum,
+                preset.nesterov,
+                preset.initializer,
+                preset.normalization,
                 preset.gradient_clip_norm or "None",
-                preset.lr_schedule, preset.regularization,
+                preset.lr_schedule,
+                preset.regularization,
                 preset.dropout_rate if preset.regularization == "dropout" else "—",
                 preset.l2_lambda if preset.regularization == "l2" else "—",
-                preset.epochs, preset.batch_size, preset.early_stopping,
-                str(preset.hidden_units), f"{r['param_count']:,}",
+                preset.epochs,
+                preset.batch_size,
+                preset.early_stopping,
+                str(preset.hidden_units),
+                f"{r['param_count']:,}",
             ],
         }
         st.dataframe(pd.DataFrame(config_data).set_index("Parameter"), use_container_width=True)

@@ -7,10 +7,11 @@ Model evaluation functions.
 import numpy as np
 import pandas as pd
 from sklearn.metrics import classification_report, confusion_matrix
+
 from src.config import CLASS_NAMES, EXPERIMENT_NAMES
 
-
 # ─────────────────────── Week 5: Preset Metric Tools ───────────────────────
+
 
 def build_comparison_table(results: dict) -> pd.DataFrame:
     """
@@ -20,17 +21,19 @@ def build_comparison_table(results: dict) -> pd.DataFrame:
     rows = []
     for key, r in results.items():
         h = r["history"].history
-        rows.append({
-            "Preset": r["preset"].name,
-            "Test Accuracy": round(r["test_acc"], 4),
-            "Test Loss": round(r["test_loss"], 4),
-            "Best Val Loss": round(float(np.min(h.get("val_loss", [0]))), 4),
-            "Convergence Epoch": r["convergence_epoch"],
-            "Training Time (s)": round(r["train_time"], 1),
-            "Overfitting Gap": round(r["overfitting_gap"], 4),
-            "Final Grad Norm": round(r["gradient_norms"][-1], 4) if r["gradient_norms"] else 0.0,
-            "Param Count": r["param_count"],
-        })
+        rows.append(
+            {
+                "Preset": r["preset"].name,
+                "Test Accuracy": round(r["test_acc"], 4),
+                "Test Loss": round(r["test_loss"], 4),
+                "Best Val Loss": round(float(np.min(h.get("val_loss", [0]))), 4),
+                "Convergence Epoch": r["convergence_epoch"],
+                "Training Time (s)": round(r["train_time"], 1),
+                "Overfitting Gap": round(r["overfitting_gap"], 4),
+                "Final Grad Norm": round(r["gradient_norms"][-1], 4) if r["gradient_norms"] else 0.0,
+                "Param Count": r["param_count"],
+            }
+        )
     return pd.DataFrame(rows).set_index("Preset")
 
 
@@ -46,19 +49,19 @@ def compute_confusion_matrix_preset(result: dict, x_test, y_test):
 
 # ─────────────────────── Legacy (Week 4 backward compatibility) ──────────────────────────
 
+
 def evaluate_model(model, x_test, y_test, experiment_name):
     """Evaluates a model on the test set."""
     test_loss, test_acc = model.evaluate(x_test, y_test, verbose=0)
-    print(f"[{EXPERIMENT_NAMES[experiment_name]}]  "
-          f"Test Loss: {test_loss:.4f}  |  Test Accuracy: {test_acc:.4f}")
+    print(f"[{EXPERIMENT_NAMES[experiment_name]}]  " f"Test Loss: {test_loss:.4f}  |  Test Accuracy: {test_acc:.4f}")
     return test_loss, test_acc
 
 
 def evaluate_all(results, x_test, y_test):
     """Computes test performance for all experiments."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("  TEST SET RESULTS")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     metrics = {}
     for name, (model, _) in results.items():
         test_loss, test_acc = evaluate_model(model, x_test, y_test, name)

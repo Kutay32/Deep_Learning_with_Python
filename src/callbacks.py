@@ -5,8 +5,8 @@ LRHistoryCallback: Records the effective learning rate at the end of each epoch.
 NaNDetectorCallback: Stops training when NaN/Inf gradient or loss is detected.
 """
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 
 class GradientNormCallback(tf.keras.callbacks.Callback):
@@ -26,9 +26,7 @@ class GradientNormCallback(tf.keras.callbacks.Callback):
             grads = tape.gradient(loss, self.model.trainable_variables)
             valid_grads = [g for g in grads if g is not None]
             if valid_grads:
-                total_norm = tf.sqrt(
-                    tf.reduce_sum([tf.reduce_sum(tf.square(g)) for g in valid_grads])
-                )
+                total_norm = tf.sqrt(tf.reduce_sum([tf.reduce_sum(tf.square(g)) for g in valid_grads]))
                 norm_val = float(total_norm.numpy())
                 self.gradient_norms.append(norm_val if np.isfinite(norm_val) else 0.0)
             else:

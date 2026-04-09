@@ -4,6 +4,7 @@ References: Goodfellow & Bengio, Deep Learning, Chapter 8.
 """
 
 import tensorflow as tf
+
 from src.presets import TrainingPreset
 
 

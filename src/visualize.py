@@ -5,10 +5,11 @@ Visualization functions.
 """
 
 import os
-import numpy as np
+
 import matplotlib.pyplot as plt
 import seaborn as sns
-from src.config import EXPERIMENT_NAMES, CLASS_NAMES, RESULTS_DIR
+
+from src.config import CLASS_NAMES, EXPERIMENT_NAMES, RESULTS_DIR
 from src.presets import PRESET_COLORS
 
 
@@ -70,10 +71,8 @@ def plot_comparison_loss(results, save=True):
 
     for i, (name, (_, history)) in enumerate(results.items()):
         label = EXPERIMENT_NAMES[name]
-        ax1.plot(history.history["val_loss"], label=label,
-                 linewidth=2, color=colors[i])
-        ax2.plot(history.history["val_accuracy"], label=label,
-                 linewidth=2, color=colors[i])
+        ax1.plot(history.history["val_loss"], label=label, linewidth=2, color=colors[i])
+        ax2.plot(history.history["val_accuracy"], label=label, linewidth=2, color=colors[i])
 
     ax1.set_title("Validation Loss Comparison", fontsize=13)
     ax1.set_xlabel("Epoch")
@@ -110,8 +109,15 @@ def plot_test_accuracy_bar(metrics, save=True):
 
     # Write value on top of each bar
     for bar, acc in zip(bars, accuracies):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005,
-                f"{acc:.4f}", ha="center", va="bottom", fontsize=12, fontweight="bold")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.005,
+            f"{acc:.4f}",
+            ha="center",
+            va="bottom",
+            fontsize=12,
+            fontweight="bold",
+        )
 
     ax.set_title("Test Accuracy Comparison", fontsize=14, fontweight="bold")
     ax.set_ylabel("Test Accuracy")
@@ -134,11 +140,15 @@ def plot_confusion_matrix(cm, experiment_name, save=True):
 
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(
-        cm, annot=True, fmt="d", cmap="Blues",
-        xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES, ax=ax,
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        xticklabels=CLASS_NAMES,
+        yticklabels=CLASS_NAMES,
+        ax=ax,
     )
-    ax.set_title(f"Confusion Matrix — {EXPERIMENT_NAMES[experiment_name]}",
-                 fontsize=13, fontweight="bold")
+    ax.set_title(f"Confusion Matrix — {EXPERIMENT_NAMES[experiment_name]}", fontsize=13, fontweight="bold")
     ax.set_xlabel("Predicted Class")
     ax.set_ylabel("True Class")
 
@@ -154,9 +164,9 @@ def plot_confusion_matrix(cm, experiment_name, save=True):
 
 # ──────────────────── Week 5: Preset Visualization Functions ──────────────────
 
+
 def _get_color(preset_key: str, idx: int) -> str:
-    fallback = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12",
-                "#9b59b6", "#1abc9c", "#e67e22", "#c0392b", "#27ae60"]
+    fallback = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#1abc9c", "#e67e22", "#c0392b", "#27ae60"]
     return PRESET_COLORS.get(preset_key, fallback[idx % len(fallback)])
 
 
@@ -248,8 +258,14 @@ def plot_test_accuracy_bar_presets(results: dict) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(max(8, len(names) * 1.4), 5))
     bars = ax.bar(names, accs, color=colors, edgecolor="black", linewidth=0.8)
     for bar, acc in zip(bars, accs):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005,
-                f"{acc:.4f}", ha="center", fontsize=10, fontweight="bold")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.005,
+            f"{acc:.4f}",
+            ha="center",
+            fontsize=10,
+            fontweight="bold",
+        )
     ax.set_ylim(0, 1.08)
     ax.set_ylabel("Test Accuracy")
     ax.set_title("Test Accuracy Comparison", fontsize=13, fontweight="bold")
@@ -268,9 +284,14 @@ def plot_overfitting_gap_bar(results: dict) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(max(8, len(names) * 1.4), 5))
     bars = ax.bar(names, gaps, color=colors, edgecolor="black", linewidth=0.8)
     for bar, gap in zip(bars, gaps):
-        ax.text(bar.get_x() + bar.get_width() / 2,
-                bar.get_height() + 0.002 if gap >= 0 else bar.get_height() - 0.012,
-                f"{gap:.4f}", ha="center", fontsize=10, fontweight="bold")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.002 if gap >= 0 else bar.get_height() - 0.012,
+            f"{gap:.4f}",
+            ha="center",
+            fontsize=10,
+            fontweight="bold",
+        )
     ax.axhline(0, color="black", linewidth=0.8, linestyle="--")
     ax.set_ylabel("Train Acc − Val Acc")
     ax.set_title("Overfitting Gap (higher = more overfit)", fontsize=13)
@@ -289,8 +310,9 @@ def plot_convergence_speed_bar(results: dict) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(max(8, len(names) * 1.4), 5))
     bars = ax.bar(names, epochs, color=colors, edgecolor="black", linewidth=0.8)
     for bar, ep in zip(bars, epochs):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                str(ep), ha="center", fontsize=11, fontweight="bold")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3, str(ep), ha="center", fontsize=11, fontweight="bold"
+        )
     ax.set_ylabel("Epoch")
     ax.set_title("Convergence Speed (lower = faster)", fontsize=13)
     ax.grid(axis="y", alpha=0.3)
@@ -303,8 +325,13 @@ def plot_confusion_matrix_preset(cm, preset_name: str) -> plt.Figure:
     """Preset ismiyle confusion matrix heatmap."""
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.heatmap(
-        cm, annot=True, fmt="d", cmap="Blues",
-        xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES, ax=ax,
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        xticklabels=CLASS_NAMES,
+        yticklabels=CLASS_NAMES,
+        ax=ax,
     )
     ax.set_title(f"Confusion Matrix — {preset_name}", fontsize=13, fontweight="bold")
     ax.set_xlabel("Predicted Class")
