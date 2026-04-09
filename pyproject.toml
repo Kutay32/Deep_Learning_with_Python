@@ -39,3 +39,9 @@ exclude = [
 [tool.bandit]
 exclude_dirs = ["notebooks", "venv", ".venv"]
 skips = ["B101"]  # Skip assert_used checks
+
+[tool.pyright]
+pythonVersion = "3.10"
+venvPath = "."
+pythonPlatform = "All"
+extraPaths = ["."]

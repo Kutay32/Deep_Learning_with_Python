@@ -4,7 +4,7 @@
 # Linting and formatting
 flake8>=6.0.0
 pylint>=2.17.0
-black>=23.0.0
+black>=25.1.0
 isort>=5.12.0
 
 # Type checking
